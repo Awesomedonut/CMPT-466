@@ -78,34 +78,35 @@ public class ActorRenderer : MonoBehaviour
 
     private void UpdateSkeletonPosition()
     {
-       
-       // Update each JointSphere's position
 
-       
+        // updating each joint
         for (int i = 0; i < Actor.Joints.Count; i++)
         {
+            JointSpheres[i].position = Actor.Joints[i].GlobalPosition;
+        }
+
+        
+        for (int i = 1; i < Actor.Joints.Count; i++)
+        {
             Joint joint = Actor.Joints[i];
+            Joint parentJoint = Actor.Joints[joint.ParentIdx];
             
-            JointSpheres[i].position = joint.GlobalPosition;
+          
+            if (joint.Name == "Site") // skip ends
+                continue;
+                
+            Vector3 startPos = parentJoint.GlobalPosition;
+            Vector3 endPos = joint.GlobalPosition;
+            Vector3 boneDirection = endPos - startPos;
+            float boneLength = boneDirection.magnitude;
             
-            if (i > 0)
+            if (boneLength > 0)
             {
-                Vector3 startPos = joint.Parent.GlobalPosition;
-                Vector3 endPos = joint.GlobalPosition;
-                Vector3 boneDirection = endPos - startPos;
-                float boneLength = boneDirection.magnitude;
+            
+                Bones[i].position = (startPos + endPos) / 2; // position is between parent and child
                 
-                Bones[i].position = startPos + boneDirection * 0.5f;
-                
-                if (boneLength > 0.001f)
-                {
-
-                    // Update each bone's position and rotation
-
-
-                    Quaternion rotation = Quaternion.FromToRotation(Vector3.up, boneDirection.normalized);
-                    Bones[i].rotation = rotation;
-                }
+             
+                Bones[i].rotation = Quaternion.FromToRotation(Vector3.up, boneDirection.normalized);
             }
         }
 
