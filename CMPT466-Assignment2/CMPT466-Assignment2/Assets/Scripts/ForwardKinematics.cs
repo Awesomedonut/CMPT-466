@@ -18,18 +18,25 @@ public static class ForwardKinematics
                 
             
             // rotation vals
-            Vector3 eulerAngles = Vector3.zero;
-            Vector3 position = Vector3.zero;
+            // Vector3   Vector3.zero;
+            // Vector3 position = Vector3.zero;
             
            
 
 
             if (i == 0)
             {
-                // root pos
-                position.x = frameData[channelIndex++];
-                position.y = frameData[channelIndex++];
-                position.z = frameData[channelIndex++];
+                // // root pos
+                                float x_p = frameData[channelIndex++];
+                float y_p = frameData[channelIndex++];
+                float z_p = frameData[channelIndex++];
+
+
+                // position.x = frameData[channelIndex++];
+                // position.y = frameData[channelIndex++];
+                // position.z = frameData[channelIndex++];
+
+                Vector3 position = new Vector3(x_p, y_p, -z_p);
                 
           
                 joint.LocalPosition = position;
@@ -44,29 +51,45 @@ public static class ForwardKinematics
             }
             
            
-            switch (joint.RotateOrder)
+          //  Quaternion localRot = Quaternion.identity;
+            Quaternion localRotation;
+            
+            // switch (joint.RotateOrder)
+            // {
+            //     case Joint.RotationOrder.XYZ:
+            //         localRotation = Quaternion.Euler(rotValues[0], rotValues[1], rotValues[2]);
+            //         break;
+            //     case Joint.RotationOrder.XZY:
+            //         localRotation = Quaternion.Euler(rotValues[0], rotValues[2], rotValues[1]);
+            //         break;
+            //     case Joint.RotationOrder.YXZ:
+            //         localRotation = Quaternion.Euler(rotValues[1], rotValues[0], rotValues[2]);
+            //         break;
+            //     case Joint.RotationOrder.YZX:
+            //         localRotation = Quaternion.Euler(rotValues[1], rotValues[2], rotValues[0]);
+            //         break;
+            //     case Joint.RotationOrder.ZXY:
+            //         localRotation = Quaternion.Euler(rotValues[2], rotValues[0], rotValues[1]);
+            //         break;
+            //     case Joint.RotationOrder.ZYX:
+            //         localRotation = Quaternion.Euler(rotValues[2], rotValues[1], rotValues[0]);
+            //         break;
+            //     default:
+            //         localRotation = Quaternion.Euler(rotValues[0], rotValues[1], rotValues[2]);
+            //         break;
+            // }
+
+            localRotation = Quaternion.Euler(rotValues[2], rotValues[1], rotValues[0]);
+
+                        Quaternion coordinateSystemCorrection = Quaternion.Euler(-90, 0, 0);
+            
+            if (i == 0) // root joint
             {
-                case Joint.RotationOrder.XYZ:
-                    joint.LocalQuaternion = Quaternion.Euler(rotValues[0], rotValues[1], rotValues[2]);
-                    break;
-                case Joint.RotationOrder.XZY:
-                    joint.LocalQuaternion = Quaternion.Euler(rotValues[0], rotValues[2], rotValues[1]);
-                    break;
-                case Joint.RotationOrder.YXZ:
-                    joint.LocalQuaternion = Quaternion.Euler(rotValues[1], rotValues[0], rotValues[2]);
-                    break;
-                case Joint.RotationOrder.YZX:
-                    joint.LocalQuaternion = Quaternion.Euler(rotValues[1], rotValues[2], rotValues[0]);
-                    break;
-                case Joint.RotationOrder.ZXY:
-                    joint.LocalQuaternion = Quaternion.Euler(rotValues[2], rotValues[0], rotValues[1]);
-                    break;
-                case Joint.RotationOrder.ZYX:
-                    joint.LocalQuaternion = Quaternion.Euler(rotValues[2], rotValues[1], rotValues[0]);
-                    break;
-                default:
-                    joint.LocalQuaternion = Quaternion.Euler(rotValues[0], rotValues[1], rotValues[2]);
-                    break;
+                joint.LocalQuaternion = coordinateSystemCorrection * localRotation;
+            }
+            else
+            {
+                joint.LocalQuaternion = localRotation;
             }
             
             // quaternion stuff
@@ -85,8 +108,10 @@ public static class ForwardKinematics
                 joint.GlobalQuaternion = parentJoint.GlobalQuaternion * joint.LocalQuaternion;
                 
       
-                Vector3 rotatedOffset = parentJoint.GlobalQuaternion * joint.LocalPosition;
-                joint.GlobalPosition = parentJoint.GlobalPosition + rotatedOffset;
+              //  Vector3 rotation2 = parentJoint.GlobalQuaternion * joint.LocalPosition;
+              //  joint.GlobalPosition = parentJoint.GlobalPosition + rotation2;
+
+              joint.GlobalPosition = parentJoint.GlobalPosition + (parentJoint.GlobalQuaternion * joint.LocalPosition);
             }
         }
     }
