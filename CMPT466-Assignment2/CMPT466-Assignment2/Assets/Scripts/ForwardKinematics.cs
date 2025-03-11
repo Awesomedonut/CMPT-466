@@ -32,7 +32,7 @@ public static class ForwardKinematics{
                 // position.y = frameData[channelIndex++];
                 // position.z = frameData[channelIndex++];
               
-                joint.LocalPosition = new Vector3(x, y, -z);
+                joint.LocalPosition = new Vector3(x, y, z);
             }
             
             //rotation vals
