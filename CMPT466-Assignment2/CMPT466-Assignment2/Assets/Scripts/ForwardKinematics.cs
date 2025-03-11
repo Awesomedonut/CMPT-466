@@ -109,12 +109,12 @@ public static class ForwardKinematics{
 
             if (joint.ParentIdx == -1) { // root
             
-                //joint.GlobalQuaternion = joint.LocalQuaternion;
+                joint.GlobalQuaternion = joint.LocalQuaternion;
 
 
                 
-                Quaternion rootCorrection = Quaternion.Euler(-90, 0, 0);
-                joint.GlobalQuaternion = rootCorrection * joint.LocalQuaternion;
+              //  Quaternion rootCorrection = Quaternion.Euler(-90, 0, 0);
+               // joint.GlobalQuaternion = rootCorrection * joint.LocalQuaternion;
                 joint.GlobalPosition = joint.LocalPosition;
             }else{
                 // childd
