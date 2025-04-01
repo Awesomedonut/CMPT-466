@@ -102,8 +102,15 @@ public abstract class BaseRigidbody : MonoBehaviour
     {
         var (force, torque) = ComputeForceAndTorque();
 
-        /*** Part 4: Integrate Timestep ***/
-        /*** part 4 coding ends ***/
+        Matrix3x3 R = new Matrix3x3(rotation);
+        Matrix3x3 I = InertiaRefMatrix;
+        Matrix3x3 I_global = R * I * R.transpose;
+
+        linear_velocity += (force / mass) * deltaTime;
+        angular_velocity += I_global.inverse * torque * deltaTime;
+
+        position += linear_velocity * deltaTime;
+        rotation = Quaternion.Euler(angular_velocity * deltaTime * Mathf.Rad2Deg) * rotation;
     }
 
     public void AdvanceTimeStep()
