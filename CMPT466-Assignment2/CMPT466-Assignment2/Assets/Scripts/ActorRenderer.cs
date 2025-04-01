@@ -78,34 +78,35 @@ public class ActorRenderer : MonoBehaviour
 
     private void UpdateSkeletonPosition()
     {
-       
-       // Update each JointSphere's position
-
-       
+        // Update each JointSphere's position
         for (int i = 0; i < Actor.Joints.Count; i++)
         {
+            JointSpheres[i].position = Actor.Joints[i].GlobalPosition;
+        }
+
+        // Update each bone's position and rotation
+        for (int i = 1; i < Actor.Joints.Count; i++)
+        {
             Joint joint = Actor.Joints[i];
+            Joint parentJoint = Actor.Joints[joint.ParentIdx];
             
-            JointSpheres[i].position = joint.GlobalPosition;
+            // Skip end sites (they don't have bones)
+            if (joint.Name == "Site")
+                continue;
+                
+            Vector3 startPos = parentJoint.GlobalPosition;
+            Vector3 endPos = joint.GlobalPosition;
+            Vector3 boneDirection = endPos - startPos;
+            float boneLength = boneDirection.magnitude;
             
-            if (i > 0)
+            if (boneLength > 0)
             {
-                Vector3 startPos = joint.Parent.GlobalPosition;
-                Vector3 endPos = joint.GlobalPosition;
-                Vector3 boneDirection = endPos - startPos;
-                float boneLength = boneDirection.magnitude;
+                // Position the bone at the midpoint between parent and child
+                Bones[i].position = (startPos + endPos) / 2;
                 
-                Bones[i].position = startPos + boneDirection * 0.5f;
-                
-                if (boneLength > 0.001f)
-                {
-
-                    // Update each bone's position and rotation
-
-
-                    Quaternion rotation = Quaternion.FromToRotation(Vector3.up, boneDirection.normalized);
-                    Bones[i].rotation = rotation;
-                }
+                // Rotate the bone to align with the direction from parent to child
+                // The default cylinder in Unity points along the y-axis
+                Bones[i].rotation = Quaternion.FromToRotation(Vector3.up, boneDirection.normalized);
             }
         }
 
