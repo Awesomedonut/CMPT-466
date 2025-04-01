@@ -78,20 +78,21 @@ public class ActorRenderer : MonoBehaviour
 
     private void UpdateSkeletonPosition()
     {
-        // Update each JointSphere's position
+
+        // updating each joint
         for (int i = 0; i < Actor.Joints.Count; i++)
         {
             JointSpheres[i].position = Actor.Joints[i].GlobalPosition;
         }
 
-        // Update each bone's position and rotation
+        
         for (int i = 1; i < Actor.Joints.Count; i++)
         {
             Joint joint = Actor.Joints[i];
             Joint parentJoint = Actor.Joints[joint.ParentIdx];
             
-            // Skip end sites (they don't have bones)
-            if (joint.Name == "Site")
+          
+            if (joint.Name == "Site") // skip ends
                 continue;
                 
             Vector3 startPos = parentJoint.GlobalPosition;
@@ -101,11 +102,10 @@ public class ActorRenderer : MonoBehaviour
             
             if (boneLength > 0)
             {
-                // Position the bone at the midpoint between parent and child
-                Bones[i].position = (startPos + endPos) / 2;
+            
+                Bones[i].position = (startPos + endPos) / 2; // position is between parent and child
                 
-                // Rotate the bone to align with the direction from parent to child
-                // The default cylinder in Unity points along the y-axis
+             
                 Bones[i].rotation = Quaternion.FromToRotation(Vector3.up, boneDirection.normalized);
             }
         }

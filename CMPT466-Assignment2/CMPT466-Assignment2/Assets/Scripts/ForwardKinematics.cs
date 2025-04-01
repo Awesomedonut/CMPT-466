@@ -1,95 +1,132 @@
 using UnityEngine;
 
-public static class ForwardKinematics
-{
-    public static void UpdateJointPositions(Actor actor, float[] frameData)
-    {
+public static class ForwardKinematics{
+    public static void UpdateJointPositions(Actor actor, float[] frameData)   {
+        Debug.Log("test 123");
+
         int channelIndex = 0;
         
-        for (int i = 0; i < actor.Joints.Count; i++)
-        {
+        // loop thru joints
+
+
+
+        for (int i = 0; i < actor.Joints.Count; i++)  {
             Joint joint = actor.Joints[i];
             
-            // Skip end sites (they don't have channels)
-            if (joint.Name == "Site")
+
+            if (joint.Name == "Site") // skip ends
                 continue;
                 
-            // Root joint may have position channels
-            if (i == 0)
-            {
-                // Root position (if available)
-                float xPos = frameData[channelIndex++];
-                float yPos = frameData[channelIndex++];
-                float zPos = frameData[channelIndex++];
+            if (i == 0) {// root pos
+
+            
+            // rotation vals
+            // Vector3   Vector3.zero;
+            // Vector3 position = Vector3.zero;
+            
                 
-                // If the skeleton is upside down, try flipping the Y coordinate
-                Vector3 position = new Vector3(xPos, -yPos, -zPos);
-                
-                // Set root position
-                joint.LocalPosition = position;
+                float x = frameData[channelIndex++]; // first 3 values for hip translational data
+                float y = frameData[channelIndex++];
+                float z = frameData[channelIndex++];
+                   // position.x = frameData[channelIndex++];
+                // position.y = frameData[channelIndex++];
+                // position.z = frameData[channelIndex++];
+              
+                joint.LocalPosition = new Vector3(x, y, z);
             }
             
-            // Get rotation values based on channel order
-            float[] rotValues = new float[3];
-            for (int j = 0; j < 3; j++)
-            {
-                rotValues[j] = frameData[channelIndex++];
-            }
+            //rotation vals
+            float x_rot = frameData[channelIndex++];
+            float y_rot = frameData[channelIndex++];
+            float z_rot = frameData[channelIndex++];
             
-            // Apply rotation based on rotation order
-            // This respects the rotation order specified in the joint
-            Quaternion localRotation;
+   
+  //  Quaternion local_rot = Quaternion.identity;
+            Quaternion local_rot = Quaternion.identity;
             
-            switch (joint.RotateOrder)
-            {
-                case Joint.RotationOrder.XYZ:
-                    localRotation = Quaternion.Euler(rotValues[0], rotValues[1], rotValues[2]);
+            switch (joint.RotateOrder)   {
+
+
+                case Joint.RotationOrder.YZX:
+          
+                    local_rot = Quaternion.identity;
+        local_rot *= Quaternion.AngleAxis(y_rot, Vector3.up);
+        local_rot *= Quaternion.AngleAxis(z_rot, Vector3.forward);
+        local_rot *= Quaternion.AngleAxis(x_rot, Vector3.right);
                     break;
+
                 case Joint.RotationOrder.XZY:
-                    localRotation = Quaternion.Euler(rotValues[0], rotValues[2], rotValues[1]);
+                
+                    local_rot = Quaternion.identity;
+        local_rot *= Quaternion.AngleAxis(x_rot, Vector3.right);
+        local_rot *= Quaternion.AngleAxis(z_rot, Vector3.forward);
+        local_rot *= Quaternion.AngleAxis(y_rot, Vector3.up);
                     break;
                 case Joint.RotationOrder.YXZ:
-                    localRotation = Quaternion.Euler(rotValues[1], rotValues[0], rotValues[2]);
+                
+                    local_rot = Quaternion.identity;
+        local_rot *= Quaternion.AngleAxis(y_rot, Vector3.up);
+        local_rot *= Quaternion.AngleAxis(x_rot, Vector3.right);
+        local_rot *= Quaternion.AngleAxis(z_rot, Vector3.forward);
                     break;
-                case Joint.RotationOrder.YZX:
-                    localRotation = Quaternion.Euler(rotValues[1], rotValues[2], rotValues[0]);
+                case Joint.RotationOrder.XYZ:
+           
+                    local_rot = Quaternion.identity;
+        local_rot *= Quaternion.AngleAxis(x_rot, Vector3.right);
+        local_rot *= Quaternion.AngleAxis(y_rot, Vector3.up);
+        local_rot *= Quaternion.AngleAxis(z_rot, Vector3.forward);
                     break;
+
+
                 case Joint.RotationOrder.ZXY:
-                    localRotation = Quaternion.Euler(rotValues[2], rotValues[0], rotValues[1]);
+                
+                    local_rot = Quaternion.identity;
+        local_rot *= Quaternion.AngleAxis(z_rot, Vector3.forward);
+        local_rot *= Quaternion.AngleAxis(x_rot, Vector3.right);
+        local_rot *= Quaternion.AngleAxis(y_rot, Vector3.up);
                     break;
                 case Joint.RotationOrder.ZYX:
-                    localRotation = Quaternion.Euler(rotValues[2], rotValues[1], rotValues[0]);
+                 
+                    local_rot = Quaternion.identity;
+        local_rot *= Quaternion.AngleAxis(z_rot, Vector3.forward);
+        local_rot *= Quaternion.AngleAxis(y_rot, Vector3.up);
+        local_rot *= Quaternion.AngleAxis(x_rot, Vector3.right);
                     break;
                 default:
-                    // Default to XYZ which is Unity's default
-                    localRotation = Quaternion.Euler(rotValues[0], rotValues[1], rotValues[2]);
+                
+                    local_rot = Quaternion.identity;
+        local_rot *= Quaternion.AngleAxis(x_rot, Vector3.right);
+        local_rot *= Quaternion.AngleAxis(y_rot, Vector3.up);
+        local_rot *= Quaternion.AngleAxis(z_rot, Vector3.forward);
                     break;
             }
             
-            // Store the local quaternion
-            joint.LocalQuaternion = localRotation;
+      
+            joint.LocalQuaternion = local_rot;
             
-            // Calculate global quaternion and position
-            if (joint.ParentIdx == -1)
-            {
-                // Root joint - apply a different correction to fix the upside-down issue
-                // Try a 180-degree rotation around the Z-axis
-                Quaternion rootCorrection = Quaternion.Euler(0, 0, 180);
-                joint.GlobalQuaternion = rootCorrection * joint.LocalQuaternion;
+          
+
+
+            if (joint.ParentIdx == -1) { // root
+            
+                joint.GlobalQuaternion = joint.LocalQuaternion;
+
+
+                
+              //  Quaternion rootCorrection = Quaternion.Euler(-90, 0, 0);
+               // joint.GlobalQuaternion = rootCorrection * joint.LocalQuaternion;
                 joint.GlobalPosition = joint.LocalPosition;
-            }
-            else
-            {
-                // Child joint
+            }else{
+                // childd
                 Joint parentJoint = actor.Joints[joint.ParentIdx];
                 
-                // Global rotation is parent's global rotation multiplied by local rotation
+             
                 joint.GlobalQuaternion = parentJoint.GlobalQuaternion * joint.LocalQuaternion;
                 
-                // Global position is parent's global position plus the rotated local position vector
+            
                 joint.GlobalPosition = parentJoint.GlobalPosition + (parentJoint.GlobalQuaternion * joint.LocalPosition);
             }
-        }
+        }   //  Vector3 rotation2 = parentJoint.GlobalQuaternion * joint.LocalPosition;
+              //  joint.GlobalPosition = parentJoint.GlobalPosition + rotation2;
     }
 }
-
