@@ -77,6 +77,17 @@ public abstract class BaseRigidbody : MonoBehaviour
             Vector3 normal = new Vector3(0, ks * penetration, 0);
             
            
+
+           // Vector3 damp = -kd * relative.y * Vector3.up;
+           // Vector3 damp = -kd * relative;
+           
+                           //Vector3 totalForce = normal + damp + friction;
+
+           
+           
+        //    Vector3 verticalDamp = -kd * relative.y * Vector3.up;
+        //    Vector3 horizontalDamp = -kd * 0.5f * new Vector3(relative.x, 0, relative.z);
+
            
             Vector3 damp = -kd * relative.y * Vector3.up;
             
@@ -107,20 +118,26 @@ public abstract class BaseRigidbody : MonoBehaviour
         var (force, torque) = ComputeForceAndTorque();
 
         /*** Part 4: Integrate Timestep ***/
-         Matrix3x3 i = InertiaRefMatrix;
-
+        
+        Matrix3x3 i = InertiaRefMatrix;
         Matrix3x3 r = new Matrix3x3(rotation);
-       
         Matrix3x3 i_global = r * i * r.transpose;
 
-      //  linVelocity += (force / mass) * deltaTime;
-      linear_velocity += (force / mass) * deltaTime;
+        //  linVelocity += (force / mass) * deltaTime;
+        linear_velocity += (force / mass) * deltaTime;
         angular_velocity += i_global.inverse * torque * deltaTime;
 
-      //  position += linVelocity * deltaTime;
-      position += linear_velocity * deltaTime;
-        rotation = rotation* Quaternion.Euler(angular_velocity * deltaTime * Mathf.Rad2Deg);
-
+        
+    //      //  position += linVelocity * deltaTime;
+    //   position += linear_velocity * deltaTime;
+    //     rotation = rotation* Quaternion.Euler(angular_velocity * deltaTime * Mathf.Rad2Deg);
+        
+        
+        position += linear_velocity * deltaTime;
+        
+        Vector3 rotationDelta = angular_velocity * deltaTime * Mathf.Rad2Deg;
+        Quaternion deltaRotation = Quaternion.Euler(rotationDelta);
+        rotation = deltaRotation * rotation;
         /*** part 4 coding ends ***/
     }
 
