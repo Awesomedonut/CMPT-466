@@ -6,9 +6,13 @@ public class BallRigidbody : BaseRigidbody
 
     protected override Matrix3x3 InertiaRefMatrix => new Matrix3x3(
         /*** Part 1: Inertia matrix of the ball ***/
-        new Vector3(0.4f, 0, 0),
-        new Vector3(0, 0.4f, 0),
-        new Vector3(0, 0, 0.4f)
+        
+        
+        
+        
+        new Vector3(2.0f, 0, 0),
+        new Vector3(0, 2.0f, 0),
+        new Vector3(0, 0, 2.0f)
     );
 
     private Vector3[] _localVertices = new Vector3[]

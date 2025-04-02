@@ -30,14 +30,17 @@ public abstract class BaseRigidbody : MonoBehaviour
         List<Vector3> CollidedVertices = new List<Vector3>();
 
         /*** Part 2: Collision Detection ***/
-        foreach (Vector3 localVertex in LocalVertices)
+
+        foreach (Vector3 local in LocalVertices)
         {
-            Vector3 globalVertex = position + rotation * localVertex;
-            if (globalVertex.y < 0)
-            {
-                CollidedVertices.Add(globalVertex);
+            Vector3 global = position + rotation * local;
+           
+           
+            if (global.y < 0){
+                CollidedVertices.Add(global);
             }
         }
+
         /*** part 2 coding ends ***/
 
         return CollidedVertices;
@@ -57,33 +60,34 @@ public abstract class BaseRigidbody : MonoBehaviour
 
 
         List<Vector3> collidedVertices = GetCollidedVertices();
-        foreach (Vector3 globalVertex in collidedVertices)
+        foreach (Vector3 global in collidedVertices)
         {
           
+
           
-            float penetration = -globalVertex.y;
+            float penetration = -global.y;
             
           
           
-            Vector3 r = globalVertex - position;
-            Vector3 relativeVelocity = linear_velocity + Vector3.Cross(angular_velocity, r);
+            Vector3 r = global - position;
+            Vector3 relative = linear_velocity + Vector3.Cross(angular_velocity, r);
             
           
           
-            Vector3 normalForce = new Vector3(0, ks * penetration, 0);
+            Vector3 normal = new Vector3(0, ks * penetration, 0);
             
            
            
-            Vector3 dampingForce = -kd * relativeVelocity.y * Vector3.up;
+            Vector3 damp = -kd * relative.y * Vector3.up;
             
            
            
-            Vector3 horizontalVelocity = new Vector3(relativeVelocity.x, 0, relativeVelocity.z);
-            Vector3 frictionForce = -mu * normalForce.magnitude * horizontalVelocity.normalized;
+            Vector3 horizVelocity = new Vector3(relative.x, 0, relative.z);
+            Vector3 friction = -mu * normal.magnitude * horizVelocity.normalized;
             
        
        
-            Vector3 totalForce = normalForce + dampingForce + frictionForce;
+            Vector3 totalForce = normal + damp + friction;
             
          
          
@@ -102,15 +106,22 @@ public abstract class BaseRigidbody : MonoBehaviour
     {
         var (force, torque) = ComputeForceAndTorque();
 
-        Matrix3x3 R = new Matrix3x3(rotation);
-        Matrix3x3 I = InertiaRefMatrix;
-        Matrix3x3 I_global = R * I * R.transpose;
+        /*** Part 4: Integrate Timestep ***/
+         Matrix3x3 i = InertiaRefMatrix;
 
-        linear_velocity += (force / mass) * deltaTime;
-        angular_velocity += I_global.inverse * torque * deltaTime;
+        Matrix3x3 r = new Matrix3x3(rotation);
+       
+        Matrix3x3 i_global = r * i * r.transpose;
 
-        position += linear_velocity * deltaTime;
-        rotation = Quaternion.Euler(angular_velocity * deltaTime * Mathf.Rad2Deg) * rotation;
+      //  linVelocity += (force / mass) * deltaTime;
+      linear_velocity += (force / mass) * deltaTime;
+        angular_velocity += i_global.inverse * torque * deltaTime;
+
+      //  position += linVelocity * deltaTime;
+      position += linear_velocity * deltaTime;
+        rotation = rotation* Quaternion.Euler(angular_velocity * deltaTime * Mathf.Rad2Deg);
+
+        /*** part 4 coding ends ***/
     }
 
     public void AdvanceTimeStep()
