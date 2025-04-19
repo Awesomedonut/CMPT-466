@@ -1,3 +1,6 @@
+// Jin Song
+// Student number 301470175
+
 using UnityEngine;
 
 public class DiceRigidbody : BaseRigidbody
