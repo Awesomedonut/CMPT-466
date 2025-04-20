@@ -123,18 +123,26 @@ public class CrawlerAgent : Agent
          */
         //return 0f;
         
-        float distanceToTarget = Vector3.Distance(body.position, targetPosition);
+        float dist = Vector3.Distance(body.position, targetPosition);
         float reward = 0f;
 
-        if (distanceToTarget < 0.1f)
-        {
+
+
+
+        if (dist < 0.1f) {
+
             reward = 1f;
+
             EndEpisode();
-        }
-        else
-        {
-            float previousDistance = Vector3.Distance(body.position - body.velocity * Time.fixedDeltaTime, targetPosition);
-            reward = (previousDistance - distanceToTarget) * 0.1f;
+
+
+        } else {
+
+            float prevDist = Vector3.Distance(body.position - body.velocity * Time.fixedDeltaTime, targetPosition);
+            
+            reward = (prevDist - dist) * 0.1f;
+       
+       
         }
 
         return reward;
