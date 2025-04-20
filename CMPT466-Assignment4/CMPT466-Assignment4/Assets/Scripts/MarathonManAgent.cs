@@ -100,28 +100,38 @@ public class MarathonManAgent : Agent
 
     public float computeRewardForward()
     {
-
-                /***
+                        /***
          * Task 2: Compute reward for a marathon man agent for a forward locomotion cycle
     */
         //return 0f;
 
-        float forwardReward = body.velocity.z;
-        float heightPenalty = Mathf.Abs(body.position.y - 1.0f) * 0.1f;
+      //  float forwardReward = body.velocity.z;
+    //    float heightPenalty = Mathf.Abs(body.position.y - 2.0f) * 0.11f;
+        
+        float forwardReward = Vector3.Dot(body.velocity, body.transform.forward);
+        float heightPenalty = Mathf.Abs(body.position.y - 1.0f) * 0.2f;
         float energyPenalty = 0f;
+        float orientationPenalty = Mathf.Abs(body.rotation.eulerAngles.x) * 0.01f + Mathf.Abs(body.rotation.eulerAngles.z) * 0.01f;
 
         //foreach (var bodyPart in bodyPartsDict.Values)
+        
         Rigidbody[] legs = { left_thigh, left_shin, left_foot, right_thigh, right_shin, right_foot };
         foreach (var leg in legs)
         {
             //bodyPart.getJointAngleVelocity()
             
-            energyPenalty += Mathf.Abs(bodyPartsDict[leg].getJointAngleVelocity()) * 0.01f;
+           // energyPenalty += Mathf.Abs(bodyPartsDict[leg].getJointAngleVelocity()) * 0.01f;
+            
+            energyPenalty += Mathf.Abs(bodyPartsDict[leg].getJointAngleVelocity()) * 0.005f;
         }
 
-        float reward = forwardReward - heightPenalty - energyPenalty;
+        
+       // float reward = forwardReward - heightPenalty - energyPenalty;
+        float reward = forwardReward - heightPenalty - energyPenalty - orientationPenalty;
 
-        if (body.position.y < 0.5f)
+        //if (body.position.y < 0.5f)
+        
+        if (body.position.y < 0.5f || Mathf.Abs(body.rotation.eulerAngles.x) > 45f || Mathf.Abs(body.rotation.eulerAngles.z) > 45f)
         {
             EndEpisode();
             return -1f;
