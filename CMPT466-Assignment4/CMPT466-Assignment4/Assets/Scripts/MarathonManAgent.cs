@@ -100,19 +100,23 @@ public class MarathonManAgent : Agent
 
     public float computeRewardForward()
     {
-        
-        /***
+
+                /***
          * Task 2: Compute reward for a marathon man agent for a forward locomotion cycle
-         */
+    */
         //return 0f;
-        
+
         float forwardReward = body.velocity.z;
         float heightPenalty = Mathf.Abs(body.position.y - 1.0f) * 0.1f;
         float energyPenalty = 0f;
 
-        foreach (var bodyPart in bodyPartsDict.Values)
+        //foreach (var bodyPart in bodyPartsDict.Values)
+        Rigidbody[] legs = { left_thigh, left_shin, left_foot, right_thigh, right_shin, right_foot };
+        foreach (var leg in legs)
         {
-            energyPenalty += Mathf.Abs(bodyPart.getJointAngleVelocity()) * 0.01f;
+            //bodyPart.getJointAngleVelocity()
+            
+            energyPenalty += Mathf.Abs(bodyPartsDict[leg].getJointAngleVelocity()) * 0.01f;
         }
 
         float reward = forwardReward - heightPenalty - energyPenalty;
