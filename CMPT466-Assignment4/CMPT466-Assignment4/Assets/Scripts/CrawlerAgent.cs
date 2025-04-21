@@ -1,3 +1,6 @@
+// Jin Song
+// student number 301470175
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -139,7 +142,7 @@ public class CrawlerAgent : Agent
         } else {
 
             float prevDist = Vector3.Distance(body.position - body.velocity * Time.fixedDeltaTime, targetPosition);
-            
+
             reward = (prevDist - dist) * 0.1f;
        
        
