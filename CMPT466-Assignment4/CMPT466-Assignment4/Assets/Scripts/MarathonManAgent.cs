@@ -105,13 +105,16 @@ public class MarathonManAgent : Agent
     */
         //return 0f;
         /*
-              //  float forwardReward = body.velocity.z;
-    //    float heightPenalty = Mathf.Abs(body.position.y - 2.0f) * 0.11f;
-        
-        float forwardReward = Vector3.Dot(body.velocity, body.transform.forward);
-        float heightPenalty = Mathf.Abs(body.position.y - 1.0f) * 0.2f;
-        float energyPenalty = 0f;
-        float orientationPenalty = Mathf.Abs(body.rotation.eulerAngles.x) * 0.01f + Mathf.Abs(body.rotation.eulerAngles.z) * 0.01f;
+              
+    //    float heightP = Mathf.Abs(body.position.y - 2.3f) * 0.1111f;
+         float heightPenalty = Mathf.Abs(body.position.y - 1.0f) * 0.2f;
+
+
+        float forward = Vector3.Dot(body.velocity, body.transform.forward);
+
+       
+        float energyP = 0f;
+                 Mathf.Abs(body.rotation.eulerAngles.x) * 0.01f + Mathf.Abs(body.rotation.eulerAngles.z) * 0.01f;
 
         //foreach (var bodyPart in bodyPartsDict.Values)
         
@@ -120,26 +123,32 @@ public class MarathonManAgent : Agent
         {
             //bodyPart.getJointAngleVelocity()
             
-           // energyPenalty += Mathf.Abs(bodyPartsDict[leg].getJointAngleVelocity()) * 0.01f;
+           //  += Mathf.Abs(bodyPartsDict[leg].getJointAngleVelocity()) * 0.01f;
             
-            energyPenalty += Mathf.Abs(bodyPartsDict[leg].getJointAngleVelocity()) * 0.005f;
+            energyP += Mathf.Abs(bodyPartsDict[leg].getJointAngleVelocity()) * 0.005f;
         }
 
         
-       // float reward = forwardReward - heightPenalty - energyPenalty;
-        float reward = forwardReward - heightPenalty - energyPenalty - orientationPenalty;
 
-        //if (body.position.y < 0.5f)
         */
 
 
 
+//  float forwrad = body.velocity.z;
+        float forward = Mathf.Clamp01(body.velocity.z * 0.5f);
 
-        float forwardReward = Mathf.Clamp01(body.velocity.z * 0.5f);
-        float heightReward = Mathf.Clamp01(1.0f - Mathf.Abs(body.position.y - 1.0f) * 0.2f);
-        float stabilityReward = Mathf.Clamp01(1.0f - (Mathf.Abs(body.rotation.eulerAngles.x) + Mathf.Abs(body.rotation.eulerAngles.z)) * 0.01f);
+   float stand = Mathf.Clamp01(1.0f - (Mathf.Abs(body.rotation.eulerAngles.x) + Mathf.Abs(body.rotation.eulerAngles.z)) * 0.01f); //lol jojo
 
-        float reward = (forwardReward * 0.6f + heightReward * 0.2f + stabilityReward * 0.2f);
+
+        float height = Mathf.Clamp01(1.0f - Mathf.Abs(body.position.y - 1.0f) * 0.2f);
+
+       // float reward = forward - 0.2*height - 0.3*energy;
+     //   float reward = 0.6*forward - heightP - stand - 0.5*energy - orientationPenalty;
+
+        //if (body.position.y < 0.3f)
+     
+        float reward = (0.6f*forward + 0.2f*stand + 0.2f*height);
+
 
         if (body.position.y < 0.5f || Mathf.Abs(body.rotation.eulerAngles.x) > 45f || Mathf.Abs(body.rotation.eulerAngles.z) > 45f)
         {
